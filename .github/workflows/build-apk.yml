@@ -1,4 +1,4 @@
-name: Build ZUDAN Audio Player APK
+name: Build ZUDAN'S Audio Player APK
 
 on:
   push:
@@ -21,7 +21,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: Init npm + install Capacitor
         run: |
@@ -34,6 +34,9 @@ jobs:
 
       - name: Add Android platform
         run: npx cap add android
+
+      - name: Point Gradle at JDK 21
+        run: echo "org.gradle.java.home=$JAVA_HOME" >> android/gradle.properties
 
       - name: Copy native MediaScanner plugin into the generated project
         run: |
