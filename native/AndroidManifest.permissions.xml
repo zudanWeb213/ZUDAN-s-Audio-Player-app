@@ -1,0 +1,20 @@
+<!--
+  Merge these into android/app/src/main/AndroidManifest.xml,
+  as direct children of <manifest>, above <application>.
+-->
+
+<!-- Android 13+ (API 33+) granular media permissions -->
+<uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+<uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+
+<!-- Android 12 and below -->
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+    android:maxSdkVersion="32" />
+
+<!-- Lets playback continue when the screen locks / app is backgrounded -->
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+<uses-permission android:name="android.permission.WAKE_LOCK" />
+
+<!-- Only needed if you later add network/URL streaming support -->
+<uses-permission android:name="android.permission.INTERNET" />
