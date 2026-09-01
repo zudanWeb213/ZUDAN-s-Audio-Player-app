@@ -38,6 +38,22 @@ jobs:
       - name: Point Gradle at JDK 21
         run: echo "org.gradle.java.home=$JAVA_HOME" >> android/gradle.properties
 
+      - name: Fix Kotlin stdlib duplicate class conflict
+        run: |
+          cat >> android/build.gradle << 'EOF'
+
+          allprojects {
+              configurations.all {
+                  resolutionStrategy {
+                      force 'org.jetbrains.kotlin:kotlin-stdlib:1.9.24'
+                      force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.24'
+                      force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.24'
+                      force 'org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24'
+                  }
+              }
+          }
+          EOF
+
       - name: Copy native MediaScanner plugin into the generated project
         run: |
           mkdir -p android/app/src/main/java/com/zudan/player
