@@ -67,8 +67,9 @@ public class MediaScannerPlugin extends Plugin {
 
     /** Queries MediaStore.Audio and MediaStore.Video and returns a combined JSArray. */
     private void scanAll(PluginCall call) {
-        JSArray results = new JSArray();
-        results.put(queryCollection(
+        JSArray flat = new JSArray();
+        appendCollection(
+            flat,
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
             "audio",
             new String[] {
@@ -79,8 +80,9 @@ public class MediaScannerPlugin extends Plugin {
                 MediaStore.Audio.Media.SIZE,
                 MediaStore.Audio.Media.MIME_TYPE
             }
-        ));
-        results.put(queryCollection(
+        );
+        appendCollection(
+            flat,
             MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
             "video",
             new String[] {
@@ -91,16 +93,7 @@ public class MediaScannerPlugin extends Plugin {
                 MediaStore.Video.Media.SIZE,
                 MediaStore.Video.Media.MIME_TYPE
             }
-        ));
-
-        // Flatten the two JSArrays of items into one "items" array on the result.
-        JSArray flat = new JSArray();
-        for (Object collectionObj : results.toList()) {
-            JSArray collection = (JSArray) collectionObj;
-            for (Object item : collection.toList()) {
-                flat.put(item);
-            }
-        }
+        );
 
         JSObject ret = new JSObject();
         ret.put("items", flat);
@@ -108,13 +101,13 @@ public class MediaScannerPlugin extends Plugin {
         call.resolve(ret);
     }
 
-    private JSArray queryCollection(Uri collectionUri, String kind, String[] projection) {
-        JSArray items = new JSArray();
+    /** Appends every row of one MediaStore collection (audio or video) straight into `flat`. */
+    private void appendCollection(JSArray flat, Uri collectionUri, String kind, String[] projection) {
         Cursor cursor = getContext().getContentResolver().query(
             collectionUri, projection, null, null,
             MediaStore.MediaColumns.TITLE + " ASC"
         );
-        if (cursor == null) return items;
+        if (cursor == null) return;
 
         int idCol = cursor.getColumnIndexOrThrow(projection[0]);
         int titleCol = cursor.getColumnIndexOrThrow(projection[1]);
@@ -137,9 +130,8 @@ public class MediaScannerPlugin extends Plugin {
             item.put("mimeType", mimeCol >= 0 ? cursor.getString(mimeCol) : "");
             // content:// URI — playable directly as a <video>/<audio> src inside the WebView
             item.put("uri", contentUri.toString());
-            items.put(item);
+            flat.put(item);
         }
         cursor.close();
-        return items;
     }
-            }
+    }
